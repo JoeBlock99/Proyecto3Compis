@@ -1,0 +1,51 @@
+COMPILER ArchivoPrueba1
+
+CHARACTERS
+letra = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
+digito = "0123456789".
+ignore = CHR(9) + CHR(10) + CHR(32).
+
+TOKENS
+
+numero = digito{digito}.
+
+IGNORE ignore
+
+PRODUCTIONS
+
+EstadoInicial = { Instruccion ";" } .
+
+Instruccion =									(.resultado = 0.)
+	Expresion<resultado>					(.print(resultado).)
+	.
+
+Expresion<resultado> =					(.resultado1 = resultado2 = 0.)
+	Termino<resultado1>
+	{		"+" Termino<resultado2>		(.resultado1 += resultado2.)
+		  | "-" Termino<resultado2>		(.resultado1 -= resultado2.)
+	}										(.resultado = resultado1.)
+	(.return resultado.)
+	.
+
+Termino<resultado> =					(.resultado1 = resultado2 = 0.)
+	Factor<resultado1>
+	{		"*"Factor<resultado2>			(.resultado1 = resultado1*resultado2.)
+		  | "/"Factor<resultado2>			(.resultado1 = resultado1/resultado2.)
+	}											(.resultado = resultado1.)
+	(.return resultado.)
+	.
+
+Factor<resultado> =					(.signo = 1.)
+	[		"-"									(.signo = -1.) 
+	]
+	(Number<resultado>
+		  | "("Expresion<resultado>")"
+	)											(.resultado = resultado*signo.)
+	(.return resultado.)
+	.
+
+Number<resultado> = numero				(.resultado = int(self.lastValue).)
+(.return resultado.)
+.
+
+END ArchivoPrueba1

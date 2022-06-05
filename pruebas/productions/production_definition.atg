@@ -1,0 +1,33 @@
+COMPILER production_definition
+
+CHARACTERS
+
+letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
+digit  = "0123456789".
+quote  = '\"'.
+tab = CHR(9).
+nextLine = CHR(10).
+blank = nextLine+CHR(13)+tab+' '.
+operadores ="=+-|{}[]()<>.".
+symbols = blank + operadores.
+anyButQuote = ANY - quote.
+anyButSymbols = ANY - symbols.
+
+TOKENS
+
+ident    = letter{letter|digit}.
+equivalence    = "=".
+end_of_prod    = ".".
+start_kleene  = "{".
+end_kleene = "}".
+start_optional  = "[".
+end_optional = "]".
+start_parenthesis   = "(".
+end_parenthesis  = ")".
+union    = "|".
+attributes     = "<" {anyButSymbols} ">".
+semantic_action = "(." {anyButSymbols} ".)".
+string   = quote {anyButQuote} quote.
+white = blank {blank}.
+
+END production_definition
