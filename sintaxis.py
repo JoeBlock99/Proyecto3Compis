@@ -11,7 +11,6 @@ class Productions:
         self.extra = 1
 
         self.program = '''
-
 class AnalisiSintactico():
     def __init__(self, tokens):
         self.tokens = tokens
@@ -19,37 +18,30 @@ class AnalisiSintactico():
         self.currentToken = None
         self.nextToken = self.tokens[self.pos]
         self.next()
-        self.lastvalue = None
-
+        self.lastValue = None
         self.main()
-
     def coincidir(self, terminal):
         if self.currentToken == terminal:
             self.next()
         else:
             self.reportar('Error de sintaxis')
-
     def next(self):
         if self.pos - 1 < 0:
-            self.lastvalue = None
+            self.lastValue = None
         else:
-            self.lastvalue = self.tokens[self.pos - 1][1]
-
+            self.lastValue = self.tokens[self.pos - 1][1]
         if self.nextToken == None:
             self.currentToken = None
         else:
             self.currentToken = self.nextToken[0]
         self.pos += 1
-
         if self.pos >= len(self.tokens):
             self.nextToken = None
         else:
             self.nextToken = self.tokens[self.pos]
         
-
     def reportar(self, msg):
         print(msg)
-
     def main(self):
         '''
         self.current = ''
@@ -100,22 +92,17 @@ class AnalisiSintactico():
             else:
                 currentMethod.append(token)
 
-        for i in range(len(self.noterminals)):
-            print(self.noterminals[i], parameters[i])
-            print(expression[i])
-
         self.program += 'self.' + self.noterminals[0] + '()'
         new_strings = {}
         for i, item in enumerate(expression):
             for index, exp in enumerate(item):
                 if exp[0] == 'string':
                     if exp[1][1:-1] not in new_strings.keys():
-                        name = f'nuevo{self.extra}'
+                        name = f'tkAnonimo{self.extra}'
                         new_strings[exp[1][1:-1]] = name
                         self.extra += 1
 
                     expression[i][index] = ('ident', new_strings[exp[1][1:-1]])
-        print('\nDESPUES:', new_strings)
 
         self.new_tokens = dict((y, x) for x, y in new_strings.items())
 
@@ -124,20 +111,17 @@ class AnalisiSintactico():
             noterminal = self.noterminals[i]
             self.firsts[noterminal] = first
 
-        print(self.firsts)
         self.create_program(expression, parameters)
 
     def create_program(self, expression, parameters):
         for i in range(len(self.noterminals)):
             my_tokens = []
-            print(self.noterminals[i], parameters[i])
-            print(expression[i])
 
             for j in expression[i]:
                 t = lexico.Token(j[0], j[1])
                 my_tokens.append(t)
 
-            analisislexico = lexico.DFA(my_tokens, self.firsts)
+            analisislexico = lexico.SyntaxTree(my_tokens, self.firsts)
 
 
             prm_string = ''
@@ -146,6 +130,8 @@ class AnalisiSintactico():
                 prm_string = ', ' + prm_string
 
             self.program += '\n\n    def ' + self.noterminals[i] + '(self' + prm_string + '):\n        ' + '\n        '.join(analisislexico.root[0])
+
+        print('PROGRAMA-GENERADO')
 
         print(self.program)
 
@@ -205,4 +191,3 @@ class AnalisiSintactico():
                 hasSquare = True
 
         return first
-        

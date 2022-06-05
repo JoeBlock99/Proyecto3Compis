@@ -2,12 +2,12 @@ import functools
 epsilon = 'ε'
 
 class Token():
-    def __init__(self, attributes, value):
-        self.Atributo = attributes
+    def __init__(self, attr, value):
+        self.Atributo = attr
         self.Valor = value
 
 
-class DFA():
+class SyntaxTree():
     def __init__(self, regular_expression, firsts):
         
         self.firsts = firsts
@@ -22,8 +22,6 @@ class DFA():
         self.follow_pos = {}
         regular_expression = self.concatenation(regular_expression)
 
-        for r in regular_expression:
-            print('re:', r.Atributo, r.Valor)
         self.evaluate(regular_expression)
 
     def calculate_first(self, ident):
@@ -69,7 +67,7 @@ class DFA():
         return stack[-1] if stack else None
 
     def is_symbol(self, s):
-        tokens = ['ident', 'attributes', 'semantic_action', 'string', 'white']
+        tokens = ['ident', 'attr', 'semantic_action', 'string', 'white']
         if s.Atributo in tokens:
             return True
         return False
@@ -99,8 +97,6 @@ class DFA():
         elif operator.Atributo == 'end_optional': return self.operator_square_close(left, right)
 
     def operator_square(self, left, right):
-        operator = 'square'
-        print(operator)
         first = root = []
 
         if isinstance(left, tuple):
@@ -125,8 +121,6 @@ class DFA():
         return (root, first)
 
     def operator_square_close(self, left, right):
-        operator = 'square close'
-        print(operator)
         first = []
         self.tabs -= 1
 
@@ -146,8 +140,6 @@ class DFA():
         return (root, first)
 
     def operator_kleene(self, left, right):
-        operator = 'kleene'
-        print(operator)
         first = []
         root = []
 
@@ -175,8 +167,6 @@ class DFA():
         return (root, first)
 
     def operator_kleene_close(self, left, right):
-        operator = 'kleene close'
-        print(operator)
         first = []
         self.tabs -= 1
 
@@ -197,7 +187,6 @@ class DFA():
 
     def operator_or(self, left, right):
         operator = 'union'
-        print(operator)
         
         if isinstance(left, tuple) and isinstance(right, tuple):
             self.tabs -= 1
@@ -263,7 +252,6 @@ class DFA():
 
     def operator_concat(self, left, right):
         operator = 'concat'
-        print(operator)
         first = []
         if isinstance(left, tuple) and isinstance(right, tuple):
             root = left[0] + right[0]
@@ -274,7 +262,6 @@ class DFA():
             root = []
 
             first = self.get_first(left, right, operator)
-            
             if left.Atributo == 'semantic_action':
                 root += ['\t' * self.tabs + left.Valor[2:-2]]
             elif left.Atributo == 'ident' and left.Valor in self.firsts.keys():
@@ -285,7 +272,7 @@ class DFA():
                 root += ['\t' * self.tabs + 'if self.currentToken == "' + left.Valor + '":']
                 root += ['\t' * self.tabs + '\tself.coincidir("' + left.Valor + '")']
                 self.tabs += 1
-            
+           
             if right.Atributo == 'semantic_action':
                 root += ['\t' * self.tabs + right.Valor[2:-2]]
             elif right.Atributo == 'ident' and right.Valor in self.firsts.keys():
@@ -294,7 +281,7 @@ class DFA():
                 root += ['\t' * self.tabs + 'if self.currentToken == "' + right.Valor + '":']
                 root += ['\t' * self.tabs + '\tself.coincidir("' + right.Valor + '")']
                 self.tabs += 1
-            elif right.Atributo == 'attributes':
+            elif right.Atributo == 'attr':
                 x = root[-1][:-2].rfind('\t')
                 root[-1] = root[-1][:-2][:x + 1] + right.Valor[1:-1] + ' = ' + root[-1][:-2][x + 1:] + '(' + right.Valor[1:-1] + ')'
 
@@ -312,7 +299,7 @@ class DFA():
                 root += ['\t' * self.tabs + 'if self.currentToken == "' + right.Valor + '":']
                 root += ['\t' * self.tabs + '\tself.coincidir("' + right.Valor + '")']
                 self.tabs += 1
-            elif right.Atributo == 'attributes':
+            elif right.Atributo == 'attr':
                 x = root[-1][:-2].rfind('\t')
                 root[-1] = root[-1][:-2][:x + 1] + right.Valor[1:-1] + ' = ' + root[-1][:-2][x + 1:] + '(' + right.Valor[1:-1] + ')'
 
@@ -381,4 +368,3 @@ class DFA():
             values.append(raiz)
 
         self.root = values.pop()
-        print(self.root, '\n')

@@ -33,7 +33,7 @@ class DFA_Node():
     def isAcceptingState(self):
         self.isFinal = True
 
-class DFA():
+class SyntaxTree():
     def __init__(self, regular_expression, all_symbols, tokens):
         self.count = 0
         self.rounds = 1

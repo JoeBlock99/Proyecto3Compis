@@ -1,5 +1,7 @@
 import re
-import proy3
+import production_definition
+from tkinter import Tk     # from tkinter import Tk for Python 3.x
+from tkinter.filedialog import askopenfilename
 
 pipe = chr(8746) # ∪
 concat = chr(8745) # ∩
@@ -148,15 +150,15 @@ class AnalisisLexico():
         if len(productions) > 0:
             productions.pop(0)
 
-        print('---------------------- CHARACTERS ------------------------------------------------------')
+        print('------------------- CHARACTERS -------------------')
         for p in characters:
             print(p)
-        print('---------------------- TOKENS----------------------------------------------------------')
+        print('------------------- TOKENS -------------------')
         for p in tokens:
             print(p)
-        print('----------------------- PRODUCTIONS -----------------------------------------------')
+        print('------------------- PRODUCTIONS -------------------')
         for p in productions:
-            print(' >', p)
+            print(p)
         
         self.compiler = compiler
         self.buildCharacters(characters)
@@ -357,11 +359,11 @@ class AnalisisLexico():
             noterminales.append(ident)
             
         self.noterminals = noterminales
-        print('\nNO TERMINALES:', self.noterminals)
 
 config_file = []
 
-archivo = input('Ingrese el nombre del archivo ATG: ')
+print('Please enter the file to analize')
+archivo = askopenfilename()
 
 with open(archivo, 'r') as reader:
     for line in reader:
@@ -371,7 +373,6 @@ with open(archivo, 'r') as reader:
 
 analisislexico = AnalisisLexico(config_file)
 
-
 filee = open(archivo, 'r', encoding='utf-8', errors='replace')
 lines = filee.readlines()
 for i in range(len(lines)):
@@ -379,7 +380,7 @@ for i in range(len(lines)):
         break
 
 contenido_productions = lines[i:-1]
-p3 = proy3.Proyecto3(list(analisislexico.tokens.keys()), contenido_productions, analisislexico.compiler)
+p3 = production_definition.ProductionDefinition(list(analisislexico.tokens.keys()), contenido_productions, analisislexico.compiler)
 
 tokens_program = ''
 exception_program = ''
@@ -394,6 +395,8 @@ for x, y in p3.new_tokens.items():
 
 
 programa_completo = '''import automata
+from tkinter import Tk     # from tkinter import Tk for Python 3.x
+from tkinter.filedialog import askopenfilename
 import parser''' + analisislexico.compiler + ''' as pf
 epsilon = 'ε'
 
@@ -413,15 +416,16 @@ for k, v in tokens.items():
 
 exp = '∪'.join(['˂˂' + token + '˃∫˃' for token in tokens.values()])
 
-archivo = input('Ingrese el nombre del archivo a escanear: ')
+print('Please enter the file to scan')
+archivo = askopenfilename()
 filee = open(archivo, 'r', encoding='utf-8', errors='replace')
 lines = filee.readlines()
 w = ''.join(lines)
 
-syntax = automata.DFA(exp, acceptable_characters, [t for t in tokens.keys()])
+syntax = automata.SyntaxTree(exp, acceptable_characters, [t for t in tokens.keys()])
 tokens = []
-
 pos = 0
+print("\\nScanner result")
 while pos < len(w):
     resultado, pos, aceptacion = syntax.Simulate_DFA(w, pos, ignores)
     if aceptacion:
@@ -429,25 +433,25 @@ while pos < len(w):
         for excepcion in exceptions[syntax.tokens[aceptacion]].keys():
             if resultado == excepcion:
                 permitido = False
-                print('     ', repr(excepcion), 'es el keyword', exceptions[syntax.tokens[aceptacion]][excepcion])
+                print(repr(excepcion), ' = ', exceptions[syntax.tokens[aceptacion]][excepcion])
                 break
 
         if permitido:
             if syntax.tokens[aceptacion] not in ignores:
-                print('     ', repr(resultado), 'es', syntax.tokens[aceptacion])
+                print(repr(resultado), ' = ', syntax.tokens[aceptacion])
                 tokens.append((syntax.tokens[aceptacion], resultado))
     else:
         if resultado != '':
-            print('     ', repr(resultado), 'es un token inesperado')
-print('\\n\\nTOKENS:')
-print(tokens)
+            print(repr(resultado), ' = caracter inesperado')
+print('\\nTOKENS:')
+for n in tokens:
+    print(n)
 pf.AnalisiSintactico(tokens)
 '''
 
 f = open(f'scanner{analisislexico.compiler}.py', 'w', encoding='utf-8')
 f.write(programa_completo)
 f.close()
-
 
 
 
